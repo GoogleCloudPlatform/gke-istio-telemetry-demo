@@ -1,0 +1,17 @@
+# Required variables: please fill in
+PROJECT=""
+ZONE=""
+REGION=""
+
+# General variables
+CLUSTER_NAME="istio-cluster"
+NETWORK_NAME="hello"
+
+#### Required variables: do not change
+ISTIO_VERSION="0.8.0"
+ISTIO_YAML="istio-demo-auth.yaml"
+ISTIO_AUTH_POLICY="MUTUAL_TLS"
+
+SHARED_DIR="../gke-istio-shared"
+ISTIO_DIR="../gke-istio-shared/istio-$ISTIO_VERSION"
+ISTIO_NAMESPACE="istio-system"
