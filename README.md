@@ -1,20 +1,24 @@
 # Istio in a Kubernetes Engine Cluster
-
-* [Istio Service Mesh expansion to GCE](#istio-service-mesh-expansion-to-gce)
-  * [Introduction](#introduction)
-  * [Architecture](#architecture)
-        * [Istio Overview](#istio-overview)
-            * [Istio Control Plane](#istio-control-plane)
-            * [Istio Data Plane](#istio-data-plane)
-        * [BookInfo Sample Application](#bookinfo-sample-application)
-        * [Architecture](#architecture-1)
-  * [Prerequisites](#prerequisites)
-        * [Tools](#tools)
-  * [Deployment](#deployment)
-        * [Validation](#validation)
-        * [Tear Down](#tear-down)
-  * [Troubleshooting](#troubleshooting)
-  * [Relevant Material](#relevant-material)
+## Table of Contents
+<!--ts-->
+* [Introduction](#introduction)
+* [Architecture](#architecture)
+   * [Istio Overview](#istio-overview)
+   * [Istio Control Plane](#istio-control-plane)
+   * [Istio Data Plane](#istio-data-plane)
+* [BookInfo Sample Application](#bookinfo-sample-application)
+   * [Architecture](#architecture-1)
+* [Prerequisites](#prerequisites)
+   * [Tools](#tools)
+* [Deployment](#deployment)
+* [Validation](#validation)
+   * [View Prometheus UI](#view-prometheus-ui)
+   * [View Grafana UI](#view-grafana-ui)
+   * [View Jaeger UI](#view-jaeger-ui)
+* [Tear Down](#tear-down)
+* [Troubleshooting](#troubleshooting)
+* [Relevant Material](#relevant-material)
+<!--te-->
 
 ## Introduction
 
@@ -38,12 +42,12 @@ collect metrics and tracing data and then visualize that data.
 
 ## Architecture
 
-#### Istio Overview
+### Istio Overview
 
 Istio has two main pieces that create the service mesh: the control plane and
 the data plane.
 
-##### Istio Control Plane
+### Istio Control Plane
 
 The control plane is made up of the following set of components that act
 together to serve as the hub for the infrastructure's service management.
@@ -60,7 +64,7 @@ together to serve as the hub for the infrastructure's service management.
 - **Citadel**: provides strong service-to-service and end-user authentication
   using mutual TLS, with built-in identity and credential management.
 
-##### Istio Data Plane
+### Istio Data Plane
 
 The data plane is comprised of all the individual service proxies that are
 distributed throughout the infrastructure. Istio uses
@@ -71,7 +75,7 @@ dynamic service discovery, load balancing, TLS termination, HTTP/2 & gRPC
 proxying, circuit breakers, health checks, staged roll-outs with
 percentage-based traffic splits, fault injection, and rich metrics.
 
-#### BookInfo Sample Application
+## BookInfo Sample Application
 
 The sample [BookInfo](https://istio.io/docs/guides/bookinfo.html)
 application displays information about a book, similar to a single catalog entry
@@ -102,7 +106,7 @@ There are 3 versions of the reviews microservice:
 To learn more about Istio, please refer to the
 [project's documentation](https://istio.io/docs/).
 
-#### Architecture
+### Architecture
 
 The pods and services that make up the Istio control plane is the first part of
 the architecture that gets installed into Kubernetes Engine, at the time we install the
@@ -127,7 +131,7 @@ In the diagram, note
 
 ## Prerequisites
 
-#### Tools
+### Tools
 
 In order to use the code in this demo you will need to have have access to a
 bash shell with the following tools installed:
@@ -164,7 +168,7 @@ echo "http://$(kubectl get -n istio-system service istio-ingressgateway -o jsonp
 ```
 2. Visit the generated URL in your browser to see the BookInfo application.
 
-##### View Prometheus UI
+### View Prometheus UI
 
 1. Run the following command on the command line
 ```console
@@ -175,7 +179,7 @@ kubectl -n istio-system port-forward $(kubectl -n istio-system get pod -l app=pr
 For more information on how to use Prometheus with Istio, please refer to the
 [Istio documentation](https://istio.io/docs/tasks/telemetry/querying-metrics/)
 
-##### View Grafana UI
+### View Grafana UI
 
 1. Run the following command:
 ```console
@@ -187,7 +191,7 @@ http://localhost:3000/dashboard/db/istio-dashboard
 For more information on how to use Grafana with Istio, please refer to the
 [Istio documentation](https://istio.io/docs/tasks/telemetry/using-istio-dashboard/)
 
-##### View Jaeger UI
+### View Jaeger UI
 
 1. Run the following command:
 
