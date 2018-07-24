@@ -224,3 +224,6 @@ This demo was created with help from the following links:
 * https://istio.io/docs/tasks/telemetry/querying-metrics/
 * https://istio.io/docs/tasks/telemetry/using-istio-dashboard/
 * https://istio.io/docs/tasks/telemetry/distributed-tracing/
+
+
+**This is not an officially supported Google product**
