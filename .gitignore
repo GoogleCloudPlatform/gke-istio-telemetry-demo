@@ -33,3 +33,6 @@ crash.log
 # version control.
 #
 # example.tfvars
+
+# local properties file
+properties.env
