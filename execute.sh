@@ -125,7 +125,7 @@ fi
 #   ISTIO_AUTH_POLICY - Whether MUTUAL_TLS authentication is turned on
 # Returns:
 #   None
-"${SHARED_DIR}/install-bookinfo.sh" "${ISTIO_DIR}" "default" "${SHARED_DIR}" \
+"${SHARED_DIR}/install-bookinfo-1.0.x.sh" "${ISTIO_DIR}" "default" "${SHARED_DIR}" \
   "${ISTIO_AUTH_POLICY}"
 
 # Validate that the BookInfo application has all of the components installed
