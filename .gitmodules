@@ -1,3 +1,3 @@
 [submodule "gke-istio-shared"]
 	path = gke-istio-shared
-	url = git@github.com:GoogleCloudPlatform/gke-istio-shared.git
+	url = https://github.com/GoogleCloudPlatform/gke-istio-shared.git

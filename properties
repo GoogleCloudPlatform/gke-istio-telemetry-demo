@@ -12,6 +12,6 @@ ISTIO_VERSION="1.0.1"
 ISTIO_YAML="istio-demo-auth.yaml"
 ISTIO_AUTH_POLICY="MUTUAL_TLS"
 
-SHARED_DIR="../gke-istio-shared"
-ISTIO_DIR="../gke-istio-shared/istio-$ISTIO_VERSION"
+SHARED_DIR="./gke-istio-shared"
+ISTIO_DIR="./gke-istio-shared/istio-$ISTIO_VERSION"
 ISTIO_NAMESPACE="istio-system"
