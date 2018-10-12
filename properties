@@ -1,17 +1,15 @@
 # Required variables: please fill in
-PROJECT=""
-ZONE=""
-REGION=""
+PROJECT="<YOUR_PROJECT>"
+ZONE="<YOUR_ZONE>"
+REGION="<YOUR_REGION>"
 
 # General variables
 CLUSTER_NAME="istio-cluster"
-NETWORK_NAME="hello"
+NETWORK_NAME="istio-telemetry-demo"
 
 #### Required variables: do not change
 ISTIO_VERSION="1.0.1"
 ISTIO_YAML="istio-demo-auth.yaml"
 ISTIO_AUTH_POLICY="MUTUAL_TLS"
 
-SHARED_DIR="./gke-istio-shared"
-ISTIO_DIR="./gke-istio-shared/istio-$ISTIO_VERSION"
 ISTIO_NAMESPACE="istio-system"

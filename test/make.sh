@@ -18,7 +18,8 @@
 # shebang has a '- e' flag, which causes it
 # to exit on error
 function check_bash() {
-find . -name "*.sh" | while IFS= read -d '' -r file;
+find . -name "*.sh" -not -path "*/istio-1.0.1/*" \
+  -not -path "*/gke-istio-shared/*" | while IFS= read -d '' -r file;
 do
   if [[ "$file" != *"bash -e"* ]];
   then
@@ -41,7 +42,8 @@ function basefiles() {
 # every file named 'Dockerfile'
 function docker() {
   echo "Running hadolint on Dockerfiles"
-  find . -name "Dockerfile" -exec hadolint {} \;
+  find . -name "Dockerfile" -not -path "*/istio-1.0.1/*" \
+    -not -path "*/gke-istio-shared/*" -exec hadolint {} \;
 }
 
 # This function runs 'terraform validate' against all
@@ -49,29 +51,34 @@ function docker() {
 function check_terraform() {
   echo "Running terraform validate"
   #shellcheck disable=SC2156
-  find . -name "*.tf" -exec bash -c 'terraform validate --check-variables=false $(dirname "{}")' \;
+  find . -name "*.tf" -not -path "*/istio-1.0.1/*" \
+    -not -path "*/gke-istio-shared/*" -exec bash -c 'terraform validate --check-variables=false $(dirname "{}")' \;
 }
 
 # This function runs 'go fmt' and 'go vet' on eery file
 # that ends in '.go'
 function golang() {
   echo "Running go fmt and go vet"
-  find . -name "*.go" -exec go fmt {} \;
-  find . -name "*.go" -exec go vet {} \;
+  find . -name "*.go" -not -path "*/istio-1.0.1/*" \
+    -not -path "*/gke-istio-shared/*" -exec go fmt {} \;
+  find . -name "*.go" -not -path "*/istio-1.0.1/*" \
+    -not -path "*/gke-istio-shared/*" -exec go vet {} \;
 }
 
 # This function runs the flake8 linter on every file
 # ending in '.py'
 function check_python() {
   echo "Running flake8"
-  find . -name "*.py" -exec flake8 {} \;
+  find . -name "*.py" -not -path "*/istio-1.0.1/*" \
+    -not -path "*/gke-istio-shared/*" -exec flake8 {} \;
 }
 
 # This function runs the shellcheck linter on every
 # file ending in '.sh'
 function check_shell() {
   echo "Running shellcheck"
-  find . -name "*.sh" -exec shellcheck -x {} \;
+  find . -name "*.sh" -not -path "*/istio-1.0.1/*" \
+    -not -path "*/gke-istio-shared/*" -exec shellcheck -x {} \;
 }
 
 # This function makes sure that there is no trailing whitespace
@@ -79,7 +86,8 @@ function check_shell() {
 # There are some exclusions
 function check_trailing_whitespace() {
   echo "The following lines have trailing whitespace"
-  grep -r '[[:blank:]]$' --exclude-dir=".terraform" --exclude="*.png" --exclude-dir=".git" --exclude="*.pyc" .
+  grep -r '[[:blank:]]$' --exclude-dir=".terraform" --exclude-dir="istio-*" \
+    --exclude="*.png" --exclude-dir=".git" --exclude="*.pyc" .
   rc=$?
   if [ $rc = 0 ]; then
     exit 1

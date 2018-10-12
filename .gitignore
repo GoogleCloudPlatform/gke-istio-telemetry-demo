@@ -36,3 +36,4 @@ crash.log
 
 # local properties file
 properties.env
+istio-1.0.1
