@@ -146,18 +146,6 @@ kubectl config set-context "$(kubectl config current-context)" --namespace=defau
 "${ISTIO_SHARED_DIR}/verify-bookinfo-setup.sh" "${ISTIO_NAMESPACE}" \
   "${ISTIO_SHARED_DIR}"
 
-# Install Grafana Istio addon
-# Globals:
-#   None
-# Arguments:
-#   ISTIO_DIR
-#   NAMESPACE
-#   ISTIO_SHARED_DIR
-# Returns:
-#   None
-"${ISTIO_SHARED_DIR}/setup-istio-grafana.sh" "${ISTIO_DIR}" \
-  "${ISTIO_NAMESPACE}" "${ISTIO_SHARED_DIR}"
-
 INGRESS_HOST=$(kubectl get -n "$ISTIO_NAMESPACE" service istio-ingressgateway -o \
   jsonpath='{.status.loadBalancer.ingress[0].ip}')
 INGRESS_PORT=$(kubectl get -n "$ISTIO_NAMESPACE" service istio-ingressgateway -o \
