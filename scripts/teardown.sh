@@ -14,31 +14,36 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# shellcheck source=../gke-istio-shared/verify-functions.sh
-
 set -e
 
+ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 # properties file
-source "${PWD}"/properties.env
+# shellcheck source=properties.env
+source "${ROOT}/properties.env"
+
+ISTIO_SHARED_DIR="${ROOT}/gke-istio-shared"
+ISTIO_DIR="${ROOT}/istio-${ISTIO_VERSION}"
+
 # functions to check existence of resources
-source "${SHARED_DIR}"/verify-functions.sh
+# shellcheck source=gke-istio-shared/verify-functions.sh
+source "${ISTIO_SHARED_DIR}/verify-functions.sh"
 
 # Delete all created Istio and Kubernetes resources
-if directory_exists "${SHARED_DIR}"; then
-  "${SHARED_DIR}/istio-${ISTIO_VERSION}/bin/istioctl" delete -f \
-    "${SHARED_DIR}/istio-${ISTIO_VERSION}/samples/bookinfo/networking/destination-rule-all-mtls.yaml"
-  "${SHARED_DIR}/istio-${ISTIO_VERSION}/bin/istioctl" delete -f \
-    "${SHARED_DIR}/istio-${ISTIO_VERSION}/samples/bookinfo/networking/bookinfo-gateway.yaml"
-  kubectl delete -f <("${SHARED_DIR}/istio-${ISTIO_VERSION}/bin/istioctl" kube-inject -f \
-    "${SHARED_DIR}/istio-${ISTIO_VERSION}/samples/bookinfo/platform/kube/bookinfo-ratings-v2-mysql-vm.yaml") \
+if directory_exists "${ISTIO_DIR}"; then
+  "${ISTIO_DIR}/bin/istioctl" delete -f \
+    "${ISTIO_DIR}/samples/bookinfo/networking/destination-rule-all-mtls.yaml"
+  "${ISTIO_DIR}/bin/istioctl" delete -f \
+    "${ISTIO_DIR}/samples/bookinfo/networking/bookinfo-gateway.yaml"
+  kubectl delete -f <("${ISTIO_DIR}/bin/istioctl" kube-inject -f \
+    "${ISTIO_DIR}/samples/bookinfo/platform/kube/bookinfo-ratings-v2-mysql-vm.yaml") \
     --ignore-not-found="true"
-  kubectl delete -f <("${SHARED_DIR}/istio-${ISTIO_VERSION}/bin/istioctl" kube-inject -f \
-    "${SHARED_DIR}/istio-${ISTIO_VERSION}/samples/bookinfo/platform/kube/bookinfo.yaml") \
+  kubectl delete -f <("${ISTIO_DIR}/bin/istioctl" kube-inject -f \
+    "${ISTIO_DIR}/samples/bookinfo/platform/kube/bookinfo.yaml") \
     --ignore-not-found="true"
 fi
 
-kubectl delete -f "${SHARED_DIR}/istio-${ISTIO_VERSION}/install/kubernetes/mesh-expansion.yaml" --ignore-not-found="true"
-kubectl delete -f "${SHARED_DIR}/istio-${ISTIO_VERSION}/install/kubernetes/istio-demo.yaml" --ignore-not-found="true"
+kubectl delete -f "${ISTIO_DIR}/install/kubernetes/mesh-expansion.yaml" --ignore-not-found="true"
+kubectl delete -f "${ISTIO_DIR}/install/kubernetes/istio-demo.yaml" --ignore-not-found="true"
 kubectl delete clusterrolebinding cluster-admin-binding --ignore-not-found="true"
 
 # Wait for Kubernetes resources to be deleted before deleting the cluster
@@ -95,22 +100,15 @@ if firewall_exists "${PROJECT}" "k8s" ; then
   echo ""
   while IFS= read -r RESULT
   do
-      gcloud compute --project "${PROJECT}" firewall-rules delete "${RESULT}" --quiet
+    gcloud compute --project "${PROJECT}" firewall-rules delete "${RESULT}" --quiet
   done < <(gcloud compute firewall-rules list --project "${PROJECT}" | grep "k8s" | awk '{print $1}')
   echo ""
   echo ""
 fi
 
-# Prompt the user about whether they want to delete the network created for the
-# cluster
-if network_exists "${PROJECT}" "${NETWORK_NAME}" && network_is_not_last "${PROJECT}" "${NETWORK_NAME}"; then
-  echo "Do you want to delete the network used by the cluster? (y/n)"
-  read -r DELETE_NETWORK
-  if [[ $DELETE_NETWORK == "y" ]]; then
-    gcloud compute --project "${PROJECT}" networks delete "${NETWORK_NAME}" --quiet
-  else
-    echo "Not deleting the network used."
-  fi
+# Delete the network created for the cluster
+if network_exists "${PROJECT}" "${NETWORK_NAME}" ; then
+  gcloud compute --project "${PROJECT}" networks delete "${NETWORK_NAME}" --quiet
 fi
 
 # Remove Istio components

@@ -14,23 +14,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# shellcheck source=../gke-istio-shared/verify-functions.sh
-
 # This script creates a GKE cluster with Istio installed in it using scripts
 # in the SHARED_DIR directory.
 
 set -e
 
+ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
+
 # Include the user set variables
-source "${PWD}/properties.env"
+# shellcheck source=properties.env
+source "${ROOT}/properties.env"
+
+ISTIO_SHARED_DIR="${ROOT}/gke-istio-shared"
+ISTIO_DIR="${ROOT}/istio-${ISTIO_VERSION}"
 
 # Source utility functions for checking the existence of various resources.
-source "${SHARED_DIR}/verify-functions.sh"
+# shellcheck source=../gke-istio-shared/verify-functions.sh
+source "${ISTIO_SHARED_DIR}/verify-functions.sh"
 
 # Ensure that the directory containing all of the necessary scripts exists
-if ! directory_exists "${SHARED_DIR}" ; then
-  echo "${SHARED_DIR} does not exist, please check the variable "
-  echo "settings in the properties file."
+if ! directory_exists "${ISTIO_SHARED_DIR}" ; then
+  echo "${ISTIO_SHARED_DIR} does not exist, please ensure"
+  echo "the submodule was cloned correctly."
   echo "Exiting..."
   exit 1
 fi
@@ -49,7 +54,7 @@ if ! dependency_installed "gcloud"; then
 fi
 
 if ! dependency_installed "kubectl"; then
-  echo "I require gcloud but it's not installed. Aborting."
+  echo "I require kubectl but it's not installed. Aborting."
 fi
 
 if ! dependency_installed "curl" ; then
@@ -66,16 +71,15 @@ enable_project_api "${PROJECT}" "container.googleapis.com"
 # Globals:
 #   None
 # Arguments:
-#   ISTIO_VERSION - Version of Istio to use for deployment
-#   SHARED_DIR    - Directory containing scripts shared by other demos
-#   SHARED_DIR    - Directory containing the verify-functions.sh file
+#   ISTIO_VERSION     - Version of Istio to use for deployment
+#   ISTIO_SHARED_DIR  - Directory containing scripts shared by other demos
+#   ISTIO_DIR         - Directory containing the verify-functions.sh file
 # Returns:
 #   None
-"${SHARED_DIR}/download-istio.sh" "${ISTIO_VERSION}" "${SHARED_DIR}"
+"${ISTIO_SHARED_DIR}/download-istio.sh" "${ISTIO_VERSION}" "${ROOT}"
 
 if ! directory_exists "$ISTIO_DIR" ; then
-  echo "${ISTIO_DIR} does not exist, please check the variable settings in the"
-  echo "properties file."
+  echo "${ISTIO_DIR} does not exist, please ensure it downloaded correctly."
   echo ""
   echo "Aborting..."
   exit 1
@@ -93,15 +97,18 @@ fi
 # Globals:
 #   None
 # Arguments:
-#   PROJECT            - Project to contain istio cluster
+#   PROJECT            - Project to contain Istio cluster
 #   CLUSTER_NAME       - Name to use for GKE cluster
 #   ZONE               - Zone to locate created cluster
-#   ISTIO_NETWORK_NAME - Name of network to use for cluster
+#   NETWORK_NAME - Name of network to use for cluster
 # Returns:
 #   None
 if ! cluster_exists "${PROJECT}" "${CLUSTER_NAME}"; then
-  "${SHARED_DIR}/create-istio-cluster.sh" "${PROJECT}" "${CLUSTER_NAME}" "${ZONE}" "${NETWORK_NAME}"
+  "${ISTIO_SHARED_DIR}/create-istio-cluster.sh" "${PROJECT}" "${CLUSTER_NAME}" "${ZONE}" "${NETWORK_NAME}"
 fi
+
+# Set context to "default" to ensure following kubectl commands work
+kubectl config set-context "$(kubectl config current-context)" --namespace=default
 
 # Install Istio control plane into the cluster
 # Globals:
@@ -110,10 +117,10 @@ fi
 #   ISTIO_DIR         - Directory containing Istio components
 #   ISTIO_YAML        - Name of the file used to deploy the Istio k8s resources
 #   ISTIO_NAMESPACE   - Namespace containing Istio components
-#   SHARED_DIR        - Directory containing scripts shared by other demos
+#   ISTIO_SHARED_DIR  - Directory containing scripts shared by other demos
 # Returns:
 #   None
-"${SHARED_DIR}/install-istio.sh" "${ISTIO_DIR}" "${ISTIO_YAML}" "${ISTIO_NAMESPACE}" "${SHARED_DIR}"
+"${ISTIO_SHARED_DIR}/install-istio.sh" "${ISTIO_DIR}" "${ISTIO_YAML}" "${ISTIO_NAMESPACE}" "${ISTIO_SHARED_DIR}"
 
 # Install the BookInfo application into the cluster
 # Globals:
@@ -121,33 +128,23 @@ fi
 # Arguments:
 #   ISTIO_DIR         - Directory containing Istio components
 #   NAMESPACE         - Namespace containing BookInfo services
-#   SHARED_DIR        - Directory containing scripts shared by other demos
+#   ISTIO_SHARED_DIR  - Directory containing scripts shared by other demos
 #   ISTIO_AUTH_POLICY - Whether MUTUAL_TLS authentication is turned on
 # Returns:
 #   None
-"${SHARED_DIR}/install-bookinfo-1.0.x.sh" "${ISTIO_DIR}" "default" "${SHARED_DIR}" \
-  "${ISTIO_AUTH_POLICY}"
+"${ISTIO_SHARED_DIR}/install-bookinfo-1.0.x.sh" "${ISTIO_DIR}" "default" \
+  "${ISTIO_SHARED_DIR}" "${ISTIO_AUTH_POLICY}"
 
 # Validate that the BookInfo application has all of the components installed
 # Globals:
 #   None
 # Arguments:
-#   ISTIO_NAMESPACE - Namespace containing Istio components
-#   SHARED_DIR      - Directory containing scripts shared by other demos
+#   ISTIO_NAMESPACE   - Namespace containing Istio components
+#   ISTIO_SHARED_DIR  - Directory containing scripts shared by other demos
 # Returns:
 #   None
-"${SHARED_DIR}/verify-bookinfo-setup.sh" "${ISTIO_NAMESPACE}" "${SHARED_DIR}"
-
-# Install Grafana Istio addon
-# Globals:
-#   None
-# Arguments:
-#   ISTIO_DIR
-#   NAMESPACE
-#   SHARED_DIR
-# Returns:
-#   None
-"${SHARED_DIR}/setup-istio-grafana.sh" "${ISTIO_DIR}" "${ISTIO_NAMESPACE}" "${SHARED_DIR}"
+"${ISTIO_SHARED_DIR}/verify-bookinfo-setup.sh" "${ISTIO_NAMESPACE}" \
+  "${ISTIO_SHARED_DIR}"
 
 INGRESS_HOST=$(kubectl get -n "$ISTIO_NAMESPACE" service istio-ingressgateway -o \
   jsonpath='{.status.loadBalancer.ingress[0].ip}')

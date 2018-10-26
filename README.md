@@ -1,32 +1,32 @@
 # Istio in a Kubernetes Engine Cluster
+
 ## Table of Contents
 <!--ts-->
 * [Introduction](#introduction)
 * [Architecture](#architecture)
-   * [Istio Overview](#istio-overview)
-   * [Istio Control Plane](#istio-control-plane)
-   * [Istio Data Plane](#istio-data-plane)
-* [BookInfo Sample Application](#bookinfo-sample-application)
-   * [Architecture](#architecture-1)
+  * [Istio Overview](#istio-overview)
+    * [Istio Control Plane](#istio-control-plane)
+    * [Istio Data Plane](#istio-data-plane)
+  * [BookInfo Sample Application](#bookinfo-sample-application)
+  * [Putting it All Together](#putting-it-all-together)
 * [Prerequisites](#prerequisites)
-   * [Run Demo in a Google Cloud Shell](#run-demo-in-a-google-cloud-shell)
-   * [Supported Operating Systems](#supported-operating-systems)
-   * [Tools](#tools)
+  * [Supported Operating Systems](#supported-operating-systems)
+  * [Deploying Demo from Google Cloud Shell](#deploying-demo-from-google-cloud-shell)
+  * [Deploying Demo without Cloud Shell](#deploying-demo-without-cloud-shell)
 * [Deployment](#deployment)
 * [Validation](#validation)
-   * [View Prometheus UI](#view-prometheus-ui)
-   * [View Grafana UI](#view-grafana-ui)
-   * [View Jaeger UI](#view-jaeger-ui)
+  * [View Prometheus UI](#view-prometheus-ui)
+  * [View Grafana UI](#view-grafana-ui)
+  * [View Jaeger UI](#view-jaeger-ui)
 * [Tear Down](#tear-down)
-* [Troubleshooting](#troubleshooting)
 * [Relevant Material](#relevant-material)
 <!--te-->
 
 ## Introduction
 
-Istio is part of a new category of products known as "service mesh" software
+[Istio](http://istio.io/) is part of a new category of products known as "service mesh" software
 designed to manage the complexity of service resilience in a microservice
-infrastructure; it defines itself as a service management framework built to
+infrastructure. It defines itself as a service management framework built to
 keep business logic separate from the logic to keep your services up and
 running. In other words, it provides a layer on top of the network that will
 automatically route traffic to the appropriate services, handle [circuit
@@ -49,26 +49,20 @@ collect metrics and tracing data and then visualize that data.
 Istio has two main pieces that create the service mesh: the control plane and
 the data plane.
 
-### Istio Control Plane
+#### Istio Control Plane
 
 The control plane is made up of the following set of components that act
-together to serve as the hub for the infrastructure's service management.
+together to serve as the hub for the infrastructure's service management:
 
-- **Mixer**: a platform-independent component responsible for enforcing access
-  control and usage policies across the service mesh and collecting telemetry
-  data from the Envoy proxy and other services
+* _[Mixer](https://istio.io/docs/concepts/what-is-istio/#mixer)_: a platform-independent component responsible for enforcing access control and usage policies across the service mesh and collecting telemetry data from the [Envoy](https://istio.io/docs/concepts/what-is-istio/#envoy) proxy and other services
 
-- **Pilot**: provides service discovery for the Envoy sidecars, traffic
-  management capabilities for intelligent routing, (A/B tests, canary
-  deployments, etc.), and resiliency (timeouts, retries, circuit breakers,
-  etc.)
+* _[Pilot](https://istio.io/docs/concepts/what-is-istio/#pilot)_: provides service discovery for the Envoy sidecars, traffic management capabilities for intelligent routing, (A/B tests, canary deployments, etc.), and resiliency (timeouts, retries, circuit breakers, etc.)
 
-- **Citadel**: provides strong service-to-service and end-user authentication
-  using mutual TLS, with built-in identity and credential management.
+* _[Citadel](https://istio.io/docs/concepts/what-is-istio/#citadel)_: provides strong service-to-service and end-user authentication using mutual TLS, with built-in identity and credential management.
 
-### Istio Data Plane
+#### Istio Data Plane
 
-The data plane is comprised of all the individual service proxies that are
+The data plane comprises all the individual service proxies that are
 distributed throughout the infrastructure. Istio uses
 [Envoy](https://www.envoyproxy.io/) with some Istio-specific extensions as its
 service proxy. It mediates all inbound and outbound traffic for all services in
@@ -77,7 +71,7 @@ dynamic service discovery, load balancing, TLS termination, HTTP/2 & gRPC
 proxying, circuit breakers, health checks, staged roll-outs with
 percentage-based traffic splits, fault injection, and rich metrics.
 
-## BookInfo Sample Application
+### BookInfo Sample Application
 
 The sample [BookInfo](https://istio.io/docs/guides/bookinfo.html)
 application displays information about a book, similar to a single catalog entry
@@ -87,12 +81,12 @@ book details (ISBN, number of pages, and so on), and a few book reviews.
 The BookInfo application is broken into four separate microservices and calls on
 various language environments for its implementation:
 
-- **productpage**. The productpage microservice calls the details and reviews
+- **productpage** - The productpage microservice calls the details and reviews
   microservices to populate the page.
-- **details**. The details microservice contains book information.
-- **reviews**. The reviews microservice contains book reviews. It also calls the
+- **details** - The details microservice contains book information.
+- **reviews** - The reviews microservice contains book reviews. It also calls the
   ratings microservice.
-- **ratings**. The ratings microservice contains book ranking information that
+- **ratings** - The ratings microservice contains book ranking information that
   accompanies a book review.
 
 There are 3 versions of the reviews microservice:
@@ -108,85 +102,91 @@ There are 3 versions of the reviews microservice:
 To learn more about Istio, please refer to the
 [project's documentation](https://istio.io/docs/).
 
-### Architecture
+### Putting it All Together
 
-The pods and services that make up the Istio control plane is the first part of
-the architecture that gets installed into Kubernetes Engine, at the time we install the
-BookInfo application we simultaneously install an istio service proxy alongside
-each micro service in the application. Our telemetry add-ons are then added to
-the Control Plane. At this point we have our two tiers that make up the Istio
-architecture, our Control Plane and our Data Plane, and we have microservices to
-manage.
+The pods and services that make up the Istio control plane are the first components of the architecture that will be installed into Kubernetes Engine. An Istio service proxy is installed along with each microservice during the installation of the BookInfo application, as are our telemetry add-ons. At this point, in addition to the application microservices there are two tiers that make up the Istio architecture: the Control Plane and the Data Plane.
 
-In the diagram, note
-- all input and output from any BookInfo microservice goes through the service
-  proxy
-- each service proxy communicates with each other and the Control plane to
-  implement the features of the service mesh, circuit breaking, discovery, etc.
-- the Mixer component of the Control Plane is the conduit for the telemetry
-  add-ons to get metrics from the service mesh
-- the Istio ingress component to provide external access to the mesh
-- the environment is setup in the Kubernetes Engine default network
+In the diagram, note:
+* All input and output from any BookInfo microservice goes through the service proxy.
+* Each service proxy communicates with each other and the Control Plane to implement the features of the service mesh, circuit breaking, discovery, etc.
+* The Mixer component of the Control Plane is the conduit for the telemetry add-ons to get metrics from the service mesh.
+* The Istio ingress component provides external access to the mesh.
+* The environment is setup in the Kubernetes Engine default network.
 
 ![](./images/istio-gke.png)
 
 ## Prerequisites
 
-A Google Cloud account and project is required for this.  Access to an existing Google Cloud
-project with the Kubernetes Engine service enabled If you do not have a Google Cloud account
-please signup for a free trial [here](https://cloud.google.com).
+A Google Cloud account and a project with billing enabled are required for this demo to function. If you do not have a Google Cloud account please sign up for a free trial [here](https://cloud.google.com).
 
-### Run Demo in a Google Cloud Shell
+### Supported Operating Systems
 
-Click the button below to run the demo in a [Google Cloud Shell](https://cloud.google.com/shell/docs/).
+This demo can be run from MacOS, Linux, or, alternatively, directly from [Google Cloud Shell](https://cloud.google.com/shell/docs/). The latter option is the simplest as it only requires browser access to GCP and no additional software is required. Instructions for both alternatives can be found below.
+
+### Deploying Demo from Google Cloud Shell
+
+_NOTE: This section can be skipped if the cloud deployment is being performed without Cloud Shell, for instance from a local machine or from a server outside GCP._
+
+[Google Cloud Shell](https://cloud.google.com/shell/docs/) is a browser-based terminal that Google provides to interact with your GCP resources. It is backed by a free Compute Engine instance that comes with many useful tools already installed, including everything required to run this demo.
+
+Click the button below to open the demo in your Cloud Shell:
 
 [![Open in Cloud Shell](http://gstatic.com/cloudssh/images/open-btn.svg)](https://console.cloud.google.com/cloudshell/open?git_repo=https%3A%2F%2Fgithub.com%2FGoogleCloudPlatform%2Fgke-istio-telemetry-demo&page=editor&tutorial=README.md)
 
-All the tools for the demo are installed. When using Cloud Shell execute the following
-command in order to setup gcloud cli.
+To prepare [gcloud](https://cloud.google.com/sdk/gcloud/) for use in Cloud Shell, execute the following command in the terminal at the bottom of the browser window you just opened:
 
 ```console
 gcloud init
 ```
 
-### Supported Operating Systems
+Respond to the prompts and continue with the following deployment instructions. The prompts will include the account you want to run as, the current project, and, optionally, the default region and zone. These configure Cloud Shell itself-the actual project, region, and zone, used by the demo will be configured separately below.
 
-This project will run on macOS, Linux, or in a [Google Cloud Shell](https://cloud.google.com/shell/docs/).
+### Deploying Demo without Cloud Shell
 
-### Tools
+_NOTE: If the demo is being deployed via Cloud Shell, as described above, this section can be skipped._
 
-When not using Cloud Shell, the following tools are required.
+For deployments without using Cloud Shell, you will need to have access to a computer providing a  [bash](https://www.gnu.org/software/bash/) shell with the following tools installed:
 
-In order to use the code in this demo you will need to have have access to a
-bash shell with the following tools installed:
-
-* Two [GCP projects](https://cloud.google.com/) with billing enabled
-* [Google Cloud SDK (v204.0.0 or later)](https://cloud.google.com/sdk/downloads)\
+* [Google Cloud SDK (v204.0.0 or later)](https://cloud.google.com/sdk/downloads)
 * [kubectl (v1.10.0 or later)](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
-* git
+* [git](https://git-scm.com/)
+
+Use `git` to clone this project to your local machine:
+
+```shell
+git clone --recursive https://github.com/GoogleCloudPlatform/gke-istio-gce-demo
+```
+
+Note that the `--recursive` argument is required to download dependencies provided via a git submodule.
+
+When downloading is complete, change your current working directory to the new project:
+
+```shell
+cd gke-istio-telemetry-demo
+```
+
+Continue with the instructions below, running all commands from this directory.
 
 ## Deployment
 
-To deploy this demo, clone the repository and the shared repository.
-The shared repository is located here: 
-https://github.com/GoogleCloudPlatform/gke-istio-shared
+_NOTE: The following instructions are applicable for deployments performed both with and without Cloud Shell._
 
-Once you have both projects cd into this projects directory.
-Note that this directory is considered the working directory and all of the following 
-commands should be run in it.
-
-1. Copy the `properties` file to `properties.env` and set the following
-   variables in the `properties.env` file:
-       * PROJECT - the name of the project you want to use
-       * REGION - the region in which to locate for all the infrastructure
-       * ZONE - the zone in which to locate all the infrastructure
-1. Run the following command
+Copy the `properties` file to `properties.env` and set the following variables in the `properties.env` file:
+ * `YOUR_PROJECT` - the name of the project you want to use
+ * `YOUR_REGION` - the region in which to locate all the infrastructure
+ * `YOUR_ZONE` - the zone in which to locate all the infrastructure
 
 ```console
-./execute.sh
+make create
 ```
 
-The script should deploy all of the necessary infrastructure and install Istio.
+The script should deploy all of the necessary infrastructure and install Istio. The script will end with a line like this, though the IP address will likely be different:
+```
+Update istio service proxy environment file
+104.196.243.210/productpage
+```
+
+You can open this URL in your browser and see the simple web application provided by the demo.
 
 ## Validation
 
@@ -194,53 +194,56 @@ The script should deploy all of the necessary infrastructure and install Istio.
 ```console
 echo "http://$(kubectl get -n istio-system service istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}'):$(kubectl get -n istio-system service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http")].port}')/productpage"
 ```
-2. Visit the generated URL in your browser to see the BookInfo application.
+1. Visit the generated URL in your browser to see the BookInfo application.
 
 ### View Prometheus UI
 
-1. Run the following command on the command line
+1. To forward the Prometheus UI port locally so you can use the browser to access it, run the following command on the command line:
 ```console
-kubectl -n istio-system port-forward $(kubectl -n istio-system get pod -l app=prometheus -o jsonpath='{.items[0].metadata.name}') 9090:9090 &
+kubectl -n istio-system port-forward $(kubectl -n istio-system get pod -l app=prometheus -o jsonpath='{.items[0].metadata.name}') 9090:9090
 ```
-2. Visit the following URL in your web browser: http://localhost:9090/graph
+1. Visit the following URL in your web browser: http://localhost:9090/graph
+
+Press `CTRL-C` to quit forwarding the port.
 
 For more information on how to use Prometheus with Istio, please refer to the
 [Istio documentation](https://istio.io/docs/tasks/telemetry/querying-metrics/)
 
 ### View Grafana UI
 
-1. Run the following command:
+1. To forward the Grafana UI port locally so you can use the browser to access it, run the following command:
 ```console
-kubectl -n istio-system port-forward $(kubectl -n istio-system get pod -l app=grafana -o jsonpath='{.items[0].metadata.name}') 3000:3000 &
+kubectl -n istio-system port-forward $(kubectl -n istio-system get pod -l app=grafana -o jsonpath='{.items[0].metadata.name}') 3000:3000
 ```
-2.  Visit the following url in your web browser:
+1.  Visit the following url in your web browser:
 http://localhost:3000/dashboard/db/istio-dashboard
+
+Press `CTRL-C` to quit forwarding the port.
 
 For more information on how to use Grafana with Istio, please refer to the
 [Istio documentation](https://istio.io/docs/tasks/telemetry/using-istio-dashboard/)
 
 ### View Jaeger UI
 
-1. Run the following command:
-
+1. To forward the Jaeger UI port locally so you can use the browser to access it, run the following command:
 ```console
-kubectl port-forward -n istio-system $(kubectl get pod -n istio-system -l app=jaeger -o jsonpath='{.items[0].metadata.name}') 16686:16686 &
+kubectl port-forward -n istio-system $(kubectl get pod -n istio-system -l app=jaeger -o jsonpath='{.items[0].metadata.name}') 16686:16686
 ```
 
-2. Visit the following url in your web browser: http://localhost:16686
+1. Visit the following url in your web browser: http://localhost:16686
+
+Press `CTRL-C` to quit forwarding the port.
 
 For more information on how to generate sample traces, please refer to the [Istio
 documentation](https://istio.io/docs/tasks/telemetry/distributed-tracing/).
 
 ## Tear Down
 
-To tear down the resources created by this demonstration, run
+To tear down the resources created by this demonstration, run:
 
 ```console
-./remove.sh
+make teardown
 ```
-
-## Troubleshooting
 
 ## Relevant Material
 
