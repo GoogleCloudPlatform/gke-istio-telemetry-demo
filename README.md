@@ -117,6 +117,20 @@ In the diagram, note:
 
 ## Prerequisites
 
+### Run Demo in a Google Cloud Shell
+
+Click the button below to run the demo in a [Google Cloud Shell](https://cloud.google.com/shell/docs/).
+
+[![Open in Cloud Shell](http://gstatic.com/cloudssh/images/open-btn.svg)](https://console.cloud.google.com/cloudshell/open?git_repo=https%3A%2F%2Fgithub.com%2FGoogleCloudPlatform%2Fgke-istio-telemetry-demo&page=editor&tutorial=README.md)
+
+All the tools for the demo are installed. When using Cloud Shell execute the following
+command in order to setup gcloud cli. When executing this command please setup your region
+and zone.
+
+```console
+gcloud init
+```
+
 A Google Cloud account and a project with billing enabled are required for this demo to function. If you do not have a Google Cloud account please sign up for a free trial [here](https://cloud.google.com).
 
 ### Supported Operating Systems
