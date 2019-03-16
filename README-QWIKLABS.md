@@ -2,24 +2,23 @@
 
 ## Table of Contents
 <!--ts-->
-* [Introduction](#introduction)
-* [Architecture](#architecture)
-  * [Istio Overview](#istio-overview)
-    * [Istio Control Plane](#istio-control-plane)
-    * [Istio Data Plane](#istio-data-plane)
-  * [BookInfo Sample Application](#bookinfo-sample-application)
-  * [Putting it All Together](#putting-it-all-together)
-* [Prerequisites](#prerequisites)
-  * [Supported Operating Systems](#supported-operating-systems)
-  * [Deploying Demo from Google Cloud Shell](#deploying-demo-from-google-cloud-shell)
-  * [Deploying Demo without Cloud Shell](#deploying-demo-without-cloud-shell)
-* [Deployment](#deployment)
-* [Validation](#validation)
-  * [View Prometheus UI](#view-prometheus-ui)
-  * [View Grafana UI](#view-grafana-ui)
-  * [View Jaeger UI](#view-jaeger-ui)
-* [Tear Down](#tear-down)
-* [Relevant Material](#relevant-material)
+- [Istio in a Kubernetes Engine Cluster](#istio-in-a-kubernetes-engine-cluster)
+  * [Table of Contents](#table-of-contents)
+  * [Introduction](#introduction)
+  * [Architecture](#architecture)
+    + [Istio Overview](#istio-overview)
+      - [Istio Control Plane](#istio-control-plane)
+      - [Istio Data Plane](#istio-data-plane)
+    + [BookInfo Sample Application](#bookinfo-sample-application)
+    + [Putting it All Together](#putting-it-all-together)
+  * [Initialize GCP](#initialize-gcp)
+  * [Deployment steps](#deployment-steps)
+  * [Validation](#validation)
+    + [View Prometheus UI](#view-prometheus-ui)
+    + [View Grafana UI](#view-grafana-ui)
+    + [View Jaeger UI](#view-jaeger-ui)
+  * [Tear Down](#tear-down)
+  * [Relevant Material](#relevant-material)
 <!--te-->
 
 ## Introduction
@@ -115,73 +114,13 @@ In the diagram, note:
 
 ![](./images/istio-gke.png)
 
-## Prerequisites
-
-### Run Demo in a Google Cloud Shell
-
-Click the button below to run the demo in a [Google Cloud Shell](https://cloud.google.com/shell/docs/).
-
-[![Open in Cloud Shell](http://gstatic.com/cloudssh/images/open-btn.svg)](https://console.cloud.google.com/cloudshell/open?git_repo=https%3A%2F%2Fgithub.com%2FGoogleCloudPlatform%2Fgke-istio-telemetry-demo&page=editor&tutorial=README.md)
-
-All the tools for the demo are installed. When using Cloud Shell execute the following
-command in order to setup gcloud cli. When executing this command please setup your region
-and zone.
+## Initialize GCP
 
 ```console
 gcloud init
 ```
 
-A Google Cloud account and a project with billing enabled are required for this demo to function. If you do not have a Google Cloud account please sign up for a free trial [here](https://cloud.google.com).
-
-### Supported Operating Systems
-
-This demo can be run from MacOS, Linux, or, alternatively, directly from [Google Cloud Shell](https://cloud.google.com/shell/docs/). The latter option is the simplest as it only requires browser access to GCP and no additional software is required. Instructions for both alternatives can be found below.
-
-### Deploying Demo from Google Cloud Shell
-
-_NOTE: This section can be skipped if the cloud deployment is being performed without Cloud Shell, for instance from a local machine or from a server outside GCP._
-
-[Google Cloud Shell](https://cloud.google.com/shell/docs/) is a browser-based terminal that Google provides to interact with your GCP resources. It is backed by a free Compute Engine instance that comes with many useful tools already installed, including everything required to run this demo.
-
-Click the button below to open the demo in your Cloud Shell:
-
-[![Open in Cloud Shell](http://gstatic.com/cloudssh/images/open-btn.svg)](https://console.cloud.google.com/cloudshell/open?git_repo=https%3A%2F%2Fgithub.com%2FGoogleCloudPlatform%2Fgke-istio-telemetry-demo&page=editor&tutorial=README.md)
-
-To prepare [gcloud](https://cloud.google.com/sdk/gcloud/) for use in Cloud Shell, execute the following command in the terminal at the bottom of the browser window you just opened:
-
-```console
-gcloud init
-```
-
-Respond to the prompts and continue with the following deployment instructions. The prompts will include the account you want to run as, the current project, and, optionally, the default region and zone. These configure Cloud Shell itself-the actual project, region, and zone, used by the demo will be configured separately below.
-
-### Deploying Demo without Cloud Shell
-
-_NOTE: If the demo is being deployed via Cloud Shell, as described above, this section can be skipped._
-
-For deployments without using Cloud Shell, you will need to have access to a computer providing a  [bash](https://www.gnu.org/software/bash/) shell with the following tools installed:
-
-* [Google Cloud SDK (v204.0.0 or later)](https://cloud.google.com/sdk/downloads)
-* [kubectl (v1.10.0 or later)](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
-* [git](https://git-scm.com/)
-
-Use `git` to clone this project to your local machine:
-
-```shell
-git clone --recursive https://github.com/GoogleCloudPlatform/gke-istio-telemetry-demo.git
-```
-
-Note that the `--recursive` argument is required to download dependencies provided via a git submodule.
-
-When downloading is complete, change your current working directory to the new project:
-
-```shell
-cd gke-istio-telemetry-demo
-```
-
-Continue with the instructions below, running all commands from this directory.
-
-## Deployment
+## Deployment steps
 
 _NOTE: The following instructions are applicable for deployments performed both with and without Cloud Shell._
 
