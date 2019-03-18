@@ -14,8 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set -e
-
 ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 # properties file
 # shellcheck source=properties.env
@@ -42,9 +40,8 @@ if directory_exists "${ISTIO_DIR}"; then
     --ignore-not-found="true"
 fi
 
-kubectl delete -f "${ISTIO_DIR}/install/kubernetes/mesh-expansion.yaml" --ignore-not-found="true"
-kubectl delete -f "${ISTIO_DIR}/install/kubernetes/istio-demo.yaml" --ignore-not-found="true"
-kubectl delete clusterrolebinding cluster-admin-binding --ignore-not-found="true"
+#  remove istio from the cluster
+kubectl delete -f "${ISTIO_DIR}/install/kubernetes/${ISTIO_YAML}" --ignore-not-found="true"
 
 # Wait for Kubernetes resources to be deleted before deleting the cluster
 # Also, filter out the resources to what would specifically be created for
