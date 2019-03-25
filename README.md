@@ -155,7 +155,7 @@ For deployments without using Cloud Shell, you will need to have access to a com
 Use `git` to clone this project to your local machine:
 
 ```shell
-git clone --recursive https://github.com/GoogleCloudPlatform/gke-istio-gce-demo
+git clone --recursive https://github.com/GoogleCloudPlatform/gke-istio-telemetry-demo.git
 ```
 
 Note that the `--recursive` argument is required to download dependencies provided via a git submodule.
