@@ -1,4 +1,5 @@
 #!/usr/bin/env groovy
+
 /*
 Copyright 2018 Google LLC
 
@@ -23,7 +24,7 @@ limitations under the License.
 
 // set up pod label and GOOGLE_APPLICATION_CREDENTIALS (for Terraform)
 def containerName = "istio-telemetry"
-def GOOGLE_APPLICATION_CREDENTIALS    = '/home/jenkins/dev/jenkins-deploy-dev-infra.json'
+def GOOGLE_APPLICATION_CREDENTIALS = '/home/jenkins/dev/jenkins-deploy-dev-infra.json'
 def jenkins_container_version = env.JENKINS_CONTAINER_VERSION
 
 podTemplate(
@@ -41,64 +42,62 @@ podTemplate(
         secretName: 'jenkins-deploy-dev-infra'
     )]
 ) {
- node(POD_LABEL) {
-  try {
-    // Options covers all other job properties or wrapper functions that apply to entire Pipeline.
-    properties([disableConcurrentBuilds()])
-    // set env variable GOOGLE_APPLICATION_CREDENTIALS for Terraform
-    env.GOOGLE_APPLICATION_CREDENTIALS=GOOGLE_APPLICATION_CREDENTIALS
+    node(POD_LABEL) {
+        try {
+            // Options covers all other job properties or wrapper functions that apply to entire Pipeline.
+            properties([disableConcurrentBuilds()])
+            // set env variable GOOGLE_APPLICATION_CREDENTIALS for Terraform
+            env.GOOGLE_APPLICATION_CREDENTIALS = GOOGLE_APPLICATION_CREDENTIALS
 
-    stage('Setup') {
-        container(containerName) {
-          // checkout code from scm i.e. commits related to the PR
-          checkout scm
+            stage('Setup') {
+                container(containerName) {
+                    // checkout code from scm i.e. commits related to the PR
+                    checkout scm
 
-          // initialize submodule and update
-          sh "git submodule update --init --recursive"
+                    // initialize submodule and update
+                    sh "git submodule update --init --recursive"
 
-          // Setup gcloud service account access
-          sh "gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}"
-          sh "gcloud config set compute/zone ${env.ZONE}"
-          sh "gcloud config set core/project ${env.PROJECT_ID}"
-          sh "gcloud config set compute/region ${env.REGION}"
-         }
-    }
-    stage('Lint') {
-        container(containerName) {
-          sh "sed -e \"s/<YOUR_PROJECT>/${env.PROJECT_ID}/g\" \
+                    // Setup gcloud service account access
+                    sh "gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}"
+                    sh "gcloud config set compute/zone ${env.ZONE}"
+                    sh "gcloud config set core/project ${env.PROJECT_ID}"
+                    sh "gcloud config set compute/region ${env.REGION}"
+                }
+            }
+            stage('Lint') {
+                container(containerName) {
+                    sh "sed -e \"s/<YOUR_PROJECT>/${env.PROJECT_ID}/g\" \
             -e \"s/<YOUR_ZONE>/${env.ZONE}/g\" \
             -e \"s/<YOUR_REGION>/${env.REGION}/g\" \
             properties > properties.env"
-          sh "make lint"
-      }
-    }
+                    sh "make lint"
+                }
+            }
 
-    stage('Create') {
-        container(containerName) {
-          sh "make create"
+            stage('Create') {
+                container(containerName) {
+                    sh "make create"
+                }
+            }
+
+            stage('Validate') {
+                container(containerName) {
+                    sh "make validate"
+                }
+            }
+
+        } catch (err) {
+            // if any exception occurs, mark the build as failed
+            // and display a detailed message on the Jenkins console output
+            currentBuild.result = 'FAILURE'
+            echo "FAILURE caught echo ${err}"
+            throw err
+        } finally {
+            stage('Teardown') {
+                container(containerName) {
+                    sh "make teardown"
+                }
+            }
         }
     }
-
-    stage('Validate') {
-        container(containerName) {
-          sh "make validate"
-        }
-    }
-
-  }
-   catch (err) {
-      // if any exception occurs, mark the build as failed
-      // and display a detailed message on the Jenkins console output
-      currentBuild.result = 'FAILURE'
-      echo "FAILURE caught echo ${err}"
-      throw err
-   }
-   finally {
-     stage('Teardown') {
-      container(containerName) {
-        sh "make teardown"
-      }
-     }
-   }
-  }
 }
