@@ -9,7 +9,6 @@
     * [Istio Data Plane](#istio-data-plane)
   * [BookInfo Sample Application](#bookinfo-sample-application)
   * [Putting it All Together](#putting-it-all-together)
-* [Prerequisites](#prerequisites)
   * [Supported Operating Systems](#supported-operating-systems)
   * [Deploying Demo from Google Cloud Shell](#deploying-demo-from-google-cloud-shell)
   * [Deploying Demo without Cloud Shell](#deploying-demo-without-cloud-shell)
@@ -115,24 +114,6 @@ In the diagram, note:
 
 ![](./images/istio-gke.png)
 
-## Prerequisites
-
-### Run Demo in a Google Cloud Shell
-
-Click the button below to run the demo in a [Google Cloud Shell](https://cloud.google.com/shell/docs/).
-
-[![Open in Cloud Shell](http://gstatic.com/cloudssh/images/open-btn.svg)](https://console.cloud.google.com/cloudshell/open?git_repo=https%3A%2F%2Fgithub.com%2FGoogleCloudPlatform%2Fgke-istio-telemetry-demo&page=editor&tutorial=README.md)
-
-All the tools for the demo are installed. When using Cloud Shell execute the following
-command in order to setup gcloud cli. When executing this command please setup your region
-and zone.
-
-```console
-gcloud init
-```
-
-A Google Cloud account and a project with billing enabled are required for this demo to function. If you do not have a Google Cloud account please sign up for a free trial [here](https://cloud.google.com).
-
 ### Supported Operating Systems
 
 This demo can be run from MacOS, Linux, or, alternatively, directly from [Google Cloud Shell](https://cloud.google.com/shell/docs/). The latter option is the simplest as it only requires browser access to GCP and no additional software is required. Instructions for both alternatives can be found below.
@@ -145,7 +126,13 @@ _NOTE: This section can be skipped if the cloud deployment is being performed wi
 
 Click the button below to open the demo in your Cloud Shell:
 
-[![Open in Cloud Shell](http://gstatic.com/cloudssh/images/open-btn.svg)](https://console.cloud.google.com/cloudshell/open?git_repo=https%3A%2F%2Fgithub.com%2FGoogleCloudPlatform%2Fgke-istio-telemetry-demo&page=editor&tutorial=README.md)
+[![Open in Cloud Shell](http://gstatic.com/cloudssh/images/open-btn.svg)](https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https://github.com/GoogleCloudPlatform/gke-istio-telemetry-demo.git&amp;cloudshell_image=gcr.io/graphite-cloud-shell-images/terraform:latest&amp;cloudshell_tutorial=README.md)
+
+Use the `--recursive` argument to download dependencies provided via a git submodule.
+
+```shell
+git submodule update --init --recursive
+```
 
 To prepare [gcloud](https://cloud.google.com/sdk/gcloud/) for use in Cloud Shell, execute the following command in the terminal at the bottom of the browser window you just opened:
 

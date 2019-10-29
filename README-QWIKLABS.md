@@ -11,6 +11,7 @@
       - [Istio Data Plane](#istio-data-plane)
     + [BookInfo Sample Application](#bookinfo-sample-application)
     + [Putting it All Together](#putting-it-all-together)
+  * [Run Demo using Cloud Shell](#run-demo-using-cloud-shell)
   * [Initialize GCP](#initialize-gcp)
   * [Deployment steps](#deployment-steps)
   * [Validation](#validation)
@@ -113,6 +114,14 @@ In the diagram, note:
 * The environment is setup in the Kubernetes Engine default network.
 
 ![](./images/istio-gke.png)
+
+## Run Demo using Cloud Shell
+
+Use the `--recursive` argument to download dependencies provided via a git submodule.
+
+```shell
+git submodule update --init --recursive
+```
 
 ## Initialize GCP
 
